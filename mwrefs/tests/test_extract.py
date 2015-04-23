@@ -33,7 +33,8 @@ def test_extract():
     {{cite book|last=Richards|first=Robert J.|title=The Romantic Conception of
     Life: Science and Philosophy in the Age of Goethe|year=2002
     |publisher=University of Chicago Press|isbn=0-226-71210-9
-    |url=http://books.google.cocover#v=onepage&q&f=false}}</ref>"""
+    |url=http://books.google.cocover#v=onepage&q&f=false}}</ref>
+    <references/>"""
 
     refs = list(extract(text))
 
