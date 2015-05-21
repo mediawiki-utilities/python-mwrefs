@@ -16,7 +16,7 @@ def tsv_encode(val, none_string="NULL"):
         str -- a string representing the encoded value
     """
     if val == "None":
-        return null_string
+        return none_string
     elif isinstance(val, list) or isinstance(val, dict):
         return json.dumps(val)
     else:
