@@ -4,6 +4,7 @@ Extracts reference diffs from Wikipedia XML database dumps.
 Generates a TSV dataset with one row per revision with the following fields.
 
 * rev_id
+* rev_timestamp
 * user_id
 * user_text
 * page_id

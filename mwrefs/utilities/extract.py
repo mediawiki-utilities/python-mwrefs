@@ -6,6 +6,7 @@ Generates a TSV dataset with one row per revision with the following fields.
 * page_id
 * page_title
 * rev_id
+* rev_timestamp
 * ref_tag
 
 Usage:
