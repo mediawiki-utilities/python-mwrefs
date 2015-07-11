@@ -42,10 +42,12 @@ def run(dump_files):
             for revision in page:
                 for reference in set(extract(revision.text or "")):
 
-                    yield page.id, page.title, revision.id, reference
+                    yield (page.id, page.title, revision.id, revision.timestamp,
+                           reference)
 
 
-    print("\t".join(["page_id", "page_title", "rev_id", "reference"]))
+    print("\t".join(["page_id", "page_title", "rev_id", "rev_timestamp",
+                     "reference"]))
 
     for vals in xml_dump.map(dump_files, process_dump):
         print("\t".join(tsv_encode(val) for val in vals))

@@ -68,13 +68,15 @@ def run(dump_files):
                         user_id = 0
                         user_text = None
 
-                    yield (revision.id, user_id, user_text, page.id, page.title,
-                           list(references_added), list(references_removed))
+                    yield (revision.id, revision.timestamp, user_id, user_text,
+                           page.id, page.title, list(references_added),
+                           list(references_removed))
 
                 last_references = references
 
-    print("\t".join(["rev_id", "user_id", "user_text", "page_id", "page_title",
-                     "references_added", "references_removed"]))
+    print("\t".join(["rev_id", "rev_timestamp", "user_id", "user_text",
+                     "page_id", "page_title", "references_added",
+                     "references_removed"]))
 
     for vals in xml_dump.map(dump_files, process_dump):
         print("\t".join(tsv_encode(val) for val in vals))
