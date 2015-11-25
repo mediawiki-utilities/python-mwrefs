@@ -41,15 +41,15 @@ def test_extract():
 
     eq_(refs,
         ['<ref>{{cite web\n    |url=http://topics.info.com/Who-coined-the-' +
-           'term-biology_716 |title=Who coined\n    the term biology? |work=' +
-           'Info.com|accessdate=2012-06-03}}</ref>',
+            'term-biology_716 |title=Who coined\n    the term biology? ' +
+            '|work=Info.com|accessdate=2012-06-03}}</ref>',
          '<ref name=OnlineEtDict>{{cite web|title=biology\n    |url=http://' +
-           'www.etymonline.com/index.php?term=biology&allowed_in_frame=0\n   ' +
-           ' |publisher=[[Online Etymology Dictionary]]}}</ref>',
+            'www.etymonline.com/index.php?term=biology&allowed_in_frame=0\n   ' +
+            ' |publisher=[[Online Etymology Dictionary]]}}</ref>',
          '<ref name="pete"/>', '<ref name=bob />',
          '<ref name=Richards>\n    {{cite book|last=Richards|first=Robert J.' +
-           '|title=The Romantic Conception of\n    Life: Science and ' +
-           'Philosophy in the Age of Goethe|year=2002\n    |publisher=' +
-           'University of Chicago Press|isbn=0-226-71210-9\n    ' +
-           '|url=http://books.google.cocover#v=onepage&q&f=false}}</ref>',
+            '|title=The Romantic Conception of\n    Life: Science and ' +
+            'Philosophy in the Age of Goethe|year=2002\n    |publisher=' +
+            'University of Chicago Press|isbn=0-226-71210-9\n    ' +
+            '|url=http://books.google.cocover#v=onepage&q&f=false}}</ref>',
          '<ref name="Richards">foobar</ref>'])
