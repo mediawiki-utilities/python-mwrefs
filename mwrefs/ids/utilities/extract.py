@@ -34,7 +34,6 @@ Options:
                              [default: <all>]
 """
 import sys
-from importlib import import_module
 from itertools import chain
 
 import docopt
@@ -48,7 +47,6 @@ ALL_EXTRACTORS = [doi, pubmed, isbn, arxiv]
 
 HEADERS = ("page_id", "page_title", "rev_id", "timestamp", "type", "id")
 
-
 def main(argv=None):
     args = docopt.docopt(__doc__, argv=argv)
     dump_files = args['<dump_file>']
@@ -61,14 +59,12 @@ def main(argv=None):
 
     run(dump_files, extractors)
 
-
 def run(dump_files, extractors):
-    writer = mysqltsv.Writer(sys.stdout, headers=HEADERS)
+    writer = mysqltsv.Writer(sts.stdout, headers=HEADERS)
 
     cites = extract(dump_files, extractors=extractors)
     for page_id, title, rev_id, timestamp, type, id in cites:
         writer.write(page_id, title, rev_id, timestamp.long_format(), type, id)
-
 
 def extract(dump_files, extractors=ALL_EXTRACTORS):
     """
@@ -95,7 +91,6 @@ def extract(dump_files, extractors=ALL_EXTRACTORS):
 
     # Map call
     return mwxml.map(process_dump, dump_files)
-
 
 def extract_cite_history(page, extractors):
     """
@@ -141,7 +136,6 @@ def extract_ids(text, extractors):
     for extractor in extractors:
         for id in extractor.extract(text):
             yield id
-
 
 def import_from_path(path):
     """
