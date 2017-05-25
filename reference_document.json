@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "content",
+  "type": "object",
+  "properties": {
+    "raw_content": {
+      "type": "string"
+    },
+    "templated": {
+      "type": "boolean"
+    },
+    "cite_template": {
+      "type": "string"
+    },
+    "urls": {
+      "type": "array",
+      "items":{
+        "type": "string"
+      }
+    },
+    "identifiers": {
+      "type": "array",
+      "items":{
+        "type": "object",
+        "additionalProperties": true,
+      }
+    },
+    "name": {
+      "type": "string"
+    },
+    "occurrences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "section": {
+            "type": "integer"
+          },
+          "text_offsset": {
+            "type": "integer"
+          },
+          "preceding_text": {
+            "type": "string"
+          },
+          "succeeding_text": {
+            "type": "string"
+          },
+          "header_level": {
+            "type": "integer"
+          },
+          "header_text": {
+            "type": "string"
+          },
+          "header_offset": {
+            "type": "integer"
+          },
+          "level_2_text": {
+            "type": "string"
+          },
+          "level_2_offset": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}
