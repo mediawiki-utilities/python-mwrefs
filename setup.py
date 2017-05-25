@@ -30,6 +30,6 @@ setup(
         ],
     },
     long_description=read("README.md"),
-    install_requires=requirements("requirements.txt"),
+    install_requires=list(requirements("requirements.txt")),
     setup_requires=['nose>=1.0', 'coverage']
 )
