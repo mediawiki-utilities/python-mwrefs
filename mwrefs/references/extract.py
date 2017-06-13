@@ -1,77 +1,98 @@
 import re
-
+import mwapi
 import mwparserfromhell
+from mwcites.utilities import extract as mwcites
 
-# Compile regex to parse fields
+
 LEXEME = [
-    ('ref', re.compile(r'<ref(\s[^/>]*)?/>|<ref[^/>]*>[\s\S]*?</ref>', re.M | re.I)),
-    ('level_2', re.compile(r'(==[^=]+==)', re.M | re.I)),
-    ('level_3', re.compile(r'(===[^=]+===)', re.M | re.I))]
+	('ref', re.compile(r'<ref(\s[^/>]*)?/>|<ref(\s[^/>]*)?>[\s\S]*?</ref>', 
+	                   re.M | re.I)), 
+	('header', re.compile(r'(==[^=]+==)|(===[^=]+===)|(====[^=]+====)', 
+	                      re.M | re.I))]
 
-GROUP_RE = re.compile(
-    '|'.join('(?P<{0}>{1})'.format(name, regex.pattern)
-             for name, regex in LEXEME),
-    re.M | re.I)
+GROUP_RE = re.compile('|'.join('(?P<{0}>{1})'.format(name, regex.pattern) 
+                               for name, regex in LEXEME), re.M | re.I)
 
 
 def extract(content):
-    dic = {}
-    level_2, level_3 = False, False
-    section = 0
+	section = 0
+	header, level_2 = None, None
 
-    for match in GROUP_RE.finditer(content):
-        if match.lastgroup == 'ref':
-            dic['content'] = {}
-            dic['content']['raw_content'] = match.group(0)
-            dic['content']['urls'] = []
-            dic['content']['identifiers'] = []
+	for match in GROUP_RE.finditer(content):
+		# Parse reference
+		if match.lastgroup == 'ref':
+			d = {}
 
-            '''
-            wikicode = mwparserfromhell.parse(match[0])
-            template = wikicode.filter_templates()
+			# Extract reference content
+			raw_content = match.group(0)
+			d['raw_content'] = raw_content 
 
-            if template:
-                dic['content']['templated'] = True
-                dic['content']['cite_template'] = template[0].name.split()[1]
-                dic['content']['urls'] += template[0].get('url').value()
+			# Extract cite template
+			wikicode = mwparserfromhell.parse(raw_content)
+			templates = wikicode.filter_templates()
 
-            else:
-                dic['content']['templated'] = False
-            '''
+			# Extract template information
+			if len(templates):
+				d['templated'] = True
+				d['cite_template'] = templates[0].name
+			else:
+				d['templated'] = False
+				d['cite_template'] = None
 
-            occurrences = {}
-            occurrences['section'] = section
+			# Extract urls
+			d['urls'] = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|'
+			                       r'[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
+			                       raw_content, re.I)
 
-            if not level_2 and not level_3:
-                occurrences['header_level'] = 0
-                occurrences['header_text'] = ''
-                occurrences['header_offset'] = 0
-                occurrences['level_2_text'] = ''
-                occurrences['level_2_offset'] = 0
+			# Extract PubMed, DOI, ISBN, or arXiv
+			_all = mwcites.ALL_EXTRACTORS
+			d['identifiers'] = list(mwcites.extract_ids(raw_content, _all))
 
-            elif level_2 and not level_3:
-                occurrences['header_level'] = 2
-                occurrences['header_text'] = level_2.group(0)
-                occurrences['header_offset'] = level_2.span()[0]
-                occurrences['level_2_text'] = level_2.group(0)
-                occurrences['level_2_offset'] = level_2.span()[0]
+			# Extract 'name' attribute
+			name = match.group(2) or match.group(3)
+			if name:
+				name = name.split('=')[1].strip()
+			d['name'] = name
+				
+			# Extract occurrence information
+			d['occurrences'] = []
+			occurrence = {}
 
-            else:
-                occurrences['header_level'] = 3
-                occurrences['header_text'] = level_3.group(0)
-                occurrences['header_offset'] = level_3.span()[0]
-                occurrences['level_2_text'] = level_2.group(0)
-                occurrences['level_2_offset'] = level_2.span()[0]
+			# Extract section
+			occurrence['section'] = section
 
-            dic['content']['occurrences'] = \
-                dic['content'].get('occurrences', []) + [occurrences]
+			# Extract preceeding and succeeding texts
+			s, e = match.span()
+			occurrence['text_offset'] = s
+			occurrence['preceding_text'] = content[max(0, s - 250):s]
+			occurrence['succeeding_text'] = content[e:min(len(content), e + 250)]
 
-            yield dic
+			# Extract immediate and level 2 headers
+			if not header and not level_2:		
+				occurrence['header_level'] = 0
+				occurrence['header_text'] = ''
+				occurrence['header_offset'] = 0
+				occurrence['level_2_text'] = ''
+				occurrence['level_2_offset'] = 0
+			else:
+				if header == level_2:
+					occurrence['header_level'] = 2
+				else: 
+					occurrence['header_level'] = 3
+				occurrence['header_text'] = header.group(0)
+				occurrence['header_offset'] = header.start()
+				occurrence['level_2_text'] = level_2.group(0)
+				occurrence['level_2_offset'] = level_2.start()
 
-        else:
-            if match.lastgroup == 'level_2':
-                level_2 = match
-                section += 1
+			# Append occurrence information
+			d['occurrences'].append(occurrence)
 
-            else:
-                level_3 = match
+			yield d
+
+		# Parse header
+		else:
+			if match.group(5):
+				header = level_2 = match
+				section += 1
+			elif match.group(6):
+				header = match
